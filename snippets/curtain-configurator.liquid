@@ -1,0 +1,226 @@
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+
+{%- assign drops = '' -%}
+{%- for variant in product.variants -%}
+  {%- unless drops contains variant.option2 -%}
+    {%- if drops != '' -%}{%- assign drops = drops | append: ',' -%}{%- endif -%}
+    {%- assign drops = drops | append: variant.option2 -%}
+  {%- endunless -%}
+{%- endfor -%}
+{%- assign drop_values = drops | split: ',' -%}
+
+
+{%- assign width_panel_raw = product.metafields.custom.width_panel_mapping.value -%}
+{%- assign fabric_colours_refs = product.metafields.custom.fabric_colours.value -%}
+
+<div class="cc-config" role="group" aria-label="Product configurator">
+  <div class="cc-row cc-row--clickable" id="cc-fabric-trigger" role="button" tabindex="0" aria-label="Select fabric">
+    <span class="cc-row__label">Fabric</span>
+    <div class="cc-row__value">
+      <span id="cc-fabric-display">Select</span>
+      <svg class="cc-row__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 6 15 12 9 18"></polyline>
+      </svg>
+    </div>
+  </div>
+
+  <div class="cc-row cc-row--clickable" id="cc-colour-trigger" role="button" tabindex="0" aria-label="Select colour">
+    <span class="cc-row__label">Colour</span>
+    <div class="cc-row__value">
+      <span id="cc-colour-display">Select</span>
+      <svg class="cc-row__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 6 15 12 9 18"></polyline>
+      </svg>
+    </div>
+  </div>
+
+  <div class="cc-row" aria-label="Select width">
+    <span class="cc-row__label">Width:</span>
+    <div class="cc-row__value">
+      <div class="cc-select-wrap">
+        <select class="cc-select" id="cc-width" aria-label="Width in centimetres">
+          {%- if width_panel_raw != blank -%}
+            {%- for mapping in width_panel_raw -%}
+              <option value="{{ mapping.width }}">{{ mapping.width }}cm</option>
+            {%- endfor -%}
+          {%- else -%}
+            <option value="60">60cm</option>
+            <option value="120">120cm</option>
+            <option value="180" selected>180cm</option>
+            <option value="240">240cm</option>
+            <option value="300">300cm</option>
+            <option value="360">360cm</option>
+            <option value="420">420cm</option>
+            <option value="480">480cm</option>
+          {%- endif -%}
+        </select>
+        <svg class="cc-select-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+      <span class="cc-tooltip" aria-label="Width information">
+        ?
+        <span class="cc-tooltip__content">Select your required curtain width</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="cc-row" aria-label="Select drop">
+    <span class="cc-row__label">Drop:</span>
+    <div class="cc-row__value">
+      <div class="cc-select-wrap">
+        <select class="cc-select" id="cc-drop" aria-label="Drop length in centimetres">
+          {%- for drop in drop_values -%}
+            <option
+              value="{{ drop }}"
+              {% if current_variant.option2 == drop %}selected{% endif %}
+            >{{ drop }}cm</option>
+          {%- endfor -%}
+        </select>
+        <svg class="cc-select-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+      <span class="cc-tooltip" aria-label="Drop information">
+        ?
+        <span class="cc-tooltip__content">Measure from top of rail to desired length</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="cc-row" aria-label="Select chain side">
+    <span class="cc-row__label">Chain Side:</span>
+    <div class="cc-row__value">
+      <div class="cc-select-wrap">
+        <select class="cc-select" id="cc-chain-side" aria-label="Chain side">
+          {%- assign chain_side_opts = product.metafields.custom.chain_side_options.value -%}
+          {%- if chain_side_opts != blank -%}
+            {%- for opt in chain_side_opts -%}
+              <option value="{{ opt | escape }}" {% if forloop.first %}selected{% endif %}>{{ opt }}</option>
+            {%- endfor -%}
+          {%- else -%}
+            <option value="Left" selected>Left</option>
+            <option value="Right">Right</option>
+          {%- endif -%}
+        </select>
+        <svg class="cc-select-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+      <span class="cc-tooltip" aria-label="Chain side information">
+        ?
+        <span class="cc-tooltip__content">Choose which side the chain hangs</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="cc-row" aria-label="Select chain colour">
+    <span class="cc-row__label">Chain Colour:</span>
+    <div class="cc-row__value">
+      <div class="cc-select-wrap">
+        <select class="cc-select" id="cc-chain-colour" aria-label="Chain colour">
+          {%- assign chain_colour_opts = product.metafields.custom.chain_colour_options.value -%}
+          {%- if chain_colour_opts != blank -%}
+            {%- for opt in chain_colour_opts -%}
+              <option value="{{ opt | escape }}" {% if forloop.first %}selected{% endif %}>{{ opt }}</option>
+            {%- endfor -%}
+          {%- else -%}
+            <option value="Chrome" selected>Chrome</option>
+            <option value="Brass">Brass</option>
+            <option value="White">White</option>
+            <option value="Black">Black</option>
+          {%- endif -%}
+        </select>
+        <svg class="cc-select-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+      <span class="cc-tooltip" aria-label="Chain colour information">
+        ?
+        <span class="cc-tooltip__content">Select chain finish colour</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="cc-row" aria-label="Select installation height">
+    <span class="cc-row__label">Installation Height:</span>
+    <div class="cc-row__value">
+      <div class="cc-select-wrap">
+        <select class="cc-select" id="cc-install-height" aria-label="Installation height">
+          {%- assign install_height_opts = product.metafields.custom.installation_height_options.value -%}
+          {%- if install_height_opts != blank -%}
+            {%- for opt in install_height_opts -%}
+              <option value="{{ opt | escape }}" {% if forloop.first %}selected{% endif %}>{{ opt }}</option>
+            {%- endfor -%}
+          {%- else -%}
+            <option value="100cm (min)" selected>100cm (min)</option>
+            <option value="120cm">120cm</option>
+            <option value="150cm">150cm</option>
+            <option value="180cm">180cm</option>
+            <option value="200cm">200cm</option>
+            <option value="220cm">220cm</option>
+            <option value="240cm">240cm</option>
+            <option value="260cm">260cm</option>
+            <option value="280cm">280cm</option>
+            <option value="300cm">300cm</option>
+          {%- endif -%}
+        </select>
+        <svg class="cc-select-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+      <span class="cc-tooltip" aria-label="Installation height information">
+        ?
+        <span class="cc-tooltip__content">Height from floor to mounting point</span>
+      </span>
+    </div>
+  </div>
+
+</div>
+
+<div class="cc-actions">
+  <button class="cc-btn-outline" id="cc-btn-power" type="button" aria-label="Toggle power option">Add Power</button>
+  <button class="cc-btn-outline" id="cc-btn-fitting" type="button" aria-label="Toggle fitting option">Add Fitting</button>
+</div>
+
+<div class="cc-atc-wrap">
+  <form id="cc-product-form" action="/cart/add" method="post" novalidate>
+    <input type="hidden" name="id" id="cc-variant-id" value="{{ current_variant.id }}">
+
+    <input type="hidden" name="properties[Fabric]" id="cc-prop-fabric" value="">
+    <input type="hidden" name="properties[Colour]" id="cc-prop-colour" value="">
+    <input type="hidden" name="properties[Width]" id="cc-prop-width" value="">
+    <input type="hidden" name="properties[Chain Side]" id="cc-prop-chain-side" value="Left">
+    <input type="hidden" name="properties[Chain Colour]" id="cc-prop-chain-colour" value="Chrome">
+    <input type="hidden" name="properties[Installation Height]" id="cc-prop-install-height" value="100cm (min)">
+    <input type="hidden" name="properties[Drop]" id="cc-prop-drop" value="">
+    <input type="hidden" name="properties[Power]" id="cc-prop-power" value="Yes" disabled>
+    <input type="hidden" name="properties[Fitting]" id="cc-prop-fitting" value="Yes" disabled>
+
+    <button
+      type="submit"
+      class="cc-atc"
+      id="cc-atc-btn"
+      aria-label="Add to cart"
+    >
+      <span class="cc-atc__text" id="cc-atc-text">
+        {{ current_variant.price | money }} — Add to cart
+      </span>
+      <span class="cc-atc__spinner" aria-hidden="true"></span>
+    </button>
+  </form>
+</div>
+
+<div class="cc-details">
+  <button class="cc-details__trigger" type="button" aria-expanded="false" aria-controls="cc-details-body">
+    <span>Product Details</span>
+    <svg class="cc-details__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </button>
+  <div class="cc-details__body" id="cc-details-body" role="region">
+    <div class="cc-details__content">
+      {{ product.description }}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,73 @@
+{% comment %}
+  Product Gallery — Curtain Configurator
+  Desktop: vertical thumbnails + main image
+  Mobile: swipeable slider with dots
+{% endcomment %}
+
+{%- assign gallery_media = product.media -%}
+
+<!-- Desktop Gallery -->
+<div class="cc-gallery">
+  <div class="cc-gallery__thumbs" role="list" aria-label="Product thumbnails">
+    {%- for media in gallery_media -%}
+      <button
+        class="cc-gallery__thumb{% if forloop.first %} is-active{% endif %}"
+        data-index="{{ forloop.index0 }}"
+        type="button"
+        role="listitem"
+        aria-label="View image {{ forloop.index }}"
+      >
+        <img
+          src="{{ media | image_url: width: 160 }}"
+          alt="{{ media.alt | escape | default: product.title }}"
+          width="72"
+          height="72"
+          loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+        >
+      </button>
+    {%- endfor -%}
+  </div>
+
+  <div class="cc-gallery__main">
+    {%- for media in gallery_media -%}
+      <img
+        class="{% if forloop.first %}is-visible{% else %}is-hidden{% endif %}"
+        src="{{ media | image_url: width: 900 }}"
+        alt="{{ media.alt | escape | default: product.title }}"
+        width="600"
+        height="750"
+        loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+      >
+    {%- endfor -%}
+  </div>
+</div>
+
+<!-- Mobile Gallery (Swipeable) -->
+<div class="cc-gallery__slider" aria-label="Product images">
+  <div class="cc-gallery__track">
+    {%- for media in gallery_media -%}
+      <div class="cc-gallery__slide">
+        <img
+          src="{{ media | image_url: width: 800 }}"
+          alt="{{ media.alt | escape | default: product.title }}"
+          width="400"
+          height="500"
+          loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+        >
+      </div>
+    {%- endfor -%}
+  </div>
+  {%- if gallery_media.size > 1 -%}
+    <div class="cc-gallery__dots" role="tablist" aria-label="Image navigation">
+      {%- for media in gallery_media -%}
+        <button
+          class="cc-gallery__dot{% if forloop.first %} is-active{% endif %}"
+          type="button"
+          role="tab"
+          aria-label="Go to image {{ forloop.index }}"
+          aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+        ></button>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</div>

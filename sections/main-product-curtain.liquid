@@ -1,0 +1,172 @@
+{% comment %}
+  Main Product — Curtain Configurator Section
+  Premium PDP layout with:
+    - Product gallery (left)
+    - Configurator (right)
+    - Fabric/colour modal
+    - Preloaded JS data (variants, metafields)
+{% endcomment %}
+
+{{ 'curtain-configurator.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<section
+  id="CurtainConfigurator"
+  class="section-{{ section.id }}-padding"
+  data-section-id="{{ section.id }}"
+  data-product-id="{{ product.id }}"
+>
+  <div class="cc-product">
+
+    <!-- ===== LEFT: GALLERY ===== -->
+    <div class="cc-gallery-wrapper">
+      {% render 'product-gallery-curtain', product: product %}
+    </div>
+
+    <!-- ===== RIGHT: PRODUCT INFO + CONFIGURATOR ===== -->
+    <div class="cc-info">
+
+      <!-- Breadcrumbs -->
+      {%- if collection -%}
+        <nav class="cc-breadcrumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span>/</span>
+          {%- if collection.collections != blank -%}
+            <a href="{{ collection.url }}">{{ collection.title }}</a>
+            <span>/</span>
+          {%- endif -%}
+          <a href="{{ collection.url }}">{{ collection.title }}</a>
+          <span>/</span>
+          <span aria-current="page">{{ product.title }}</span>
+        </nav>
+      {%- else -%}
+        <nav class="cc-breadcrumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span>/</span>
+          <a href="/collections/all">Products</a>
+          <span>/</span>
+          <span aria-current="page">{{ product.title }}</span>
+        </nav>
+      {%- endif -%}
+
+      <h1 class="cc-title">{{ product.title | escape }}</h1>
+
+      {%- if product.metafields.custom.short_description != blank -%}
+        <div class="cc-description">{{ product.metafields.custom.short_description | metafield_tag }}</div>
+      {%- elsif product.description != blank -%}
+        <p class="cc-description">{{ product.description | strip_html | truncate: 160 }}</p>
+      {%- endif -%}
+
+      {% render 'curtain-configurator', product: product %}
+
+    </div>
+  </div>
+
+  {% render 'fabric-selector-modal', product: product %}
+
+  <script>
+    window.ccProductVariants = {{ product.variants | json }};
+
+    window.ccMoneyFormat = {{ shop.money_format | json }};
+
+    {%- if product.metafields.custom.width_panel_mapping != blank -%}
+      window.ccWidthPanelMap = {{ product.metafields.custom.width_panel_mapping.value | json }};
+    {%- else -%}
+      window.ccWidthPanelMap = [];
+    {%- endif -%}
+
+    {%- assign fabric_metaobjects = product.metafields.custom.fabric_colours.value | default: product.metafields.custom.fabric_colors.value -%}
+    {%- if fabric_metaobjects != blank -%}
+      window.ccFabricColours = [
+        {%- for fc in fabric_metaobjects -%}
+          {
+            "fabric_name": {{ fc.fabric_name.value | default: "" | json }},
+            "fabric_colors": {{ fc.fabric_colors.value | default: "[]" | json }},
+            "fabric_image": {% if fc.fabric_image.value != blank %}{{ fc.fabric_image.value | image_url: width: 300 | json }}{% else %}""{% endif %},
+            "fabric_code": {{ fc.fabric_code.value | default: "" | json }}
+          }{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ];
+    {%- else -%}
+      window.ccFabricColours = [];
+    {%- endif -%}
+  </script>
+
+  <script src="{{ 'curtain-configurator.js' | asset_url }}" defer></script>
+  <script src="{{ 'fabric-selector.js' | asset_url }}" defer></script>
+
+  <script type="application/ld+json">
+    {{ product | structured_data }}
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Curtain Configurator",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Configurator Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sticky_gallery",
+      "label": "Enable sticky gallery",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "gallery_position",
+      "label": "Gallery position",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Section Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 36
+    }
+  ],
+  "presets": [
+    {
+      "name": "Curtain Configurator"
+    }
+  ]
+}
+{% endschema %}
